@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -12,10 +14,66 @@ import (
 	"github.com/fatih/color"
 )
 
+type CheckRequest struct {
+	Method  string            `json:"method"`
+	Path    string            `json:"path"`
+	Headers map[string]string `json:"headers"`
+	Body    string            `json:"body"`
+}
+
+type CheckResponse struct {
+	Action string `json:"action"`
+	Reason string `json:"reason"`
+}
+
 func clearScreen() {
 	cmd := exec.Command("clear")
 	cmd.Stdout = os.Stdout
 	cmd.Run()
+}
+
+func securityMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		checkReq := CheckRequest{
+			Method:  r.Method,
+			Path:    r.URL.Path,
+			Headers: map[string]string{},
+			Body:    "",
+		}
+
+		data, err := json.Marshal(checkReq)
+		if err != nil {
+			log.Printf("eroare la marshal: %v", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+
+		resp, err := http.Post(
+			"http://localhost:9000/check",
+			"application/json",
+			bytes.NewReader(data),
+		)
+		if err != nil {
+			log.Printf("eroare la marshal: %v", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+		defer resp.Body.Close()
+
+		var checkResp CheckResponse
+		if err := json.NewDecoder(resp.Body).Decode(&checkResp); err != nil {
+			log.Printf("eroare la marshal: %v", err)
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+
+		if checkResp.Action == "block" {
+			http.Error(w, "blocked by APIShield: "+checkResp.Reason, http.StatusForbidden)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 var boldCyan = color.New(color.FgCyan, color.Bold)
@@ -44,7 +102,7 @@ func main() {
 	}
 
 	proxy := httputil.NewSingleHostReverseProxy(target)
-	http.Handle("/", loggingMiddleware(proxy))
+	http.Handle("/", loggingMiddleware(securityMiddleware(proxy)))
 
 	log.Println("proxy listening on...")
 	boldGreen.Print("http://localhost:8080")
