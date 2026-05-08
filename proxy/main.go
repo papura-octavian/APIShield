@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"runtime"
 	"time"
 
 	"github.com/fatih/color"
@@ -27,9 +28,16 @@ type CheckResponse struct {
 }
 
 func clearScreen() {
-	cmd := exec.Command("clear")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
+	switch runtime.GOOS {
+	case "windows":
+		cmd := exec.Command("cmd", "/c", "cls")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	default: // linux, darwin (mac)
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
 }
 
 func securityMiddleware(next http.Handler) http.Handler {

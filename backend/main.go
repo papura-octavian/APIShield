@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"runtime"
 
 	"github.com/fatih/color"
 )
@@ -14,9 +15,16 @@ var boldGreen = color.New(color.FgGreen, color.Bold)
 var boldRed = color.New(color.FgRed, color.Bold)
 
 func clearScreen() {
-	cmd := exec.Command("clear")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
+	switch runtime.GOOS {
+	case "windows":
+		cmd := exec.Command("cmd", "/c", "cls")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	default: // linux, darwin (mac)
+		cmd := exec.Command("clear")
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
 }
 
 type Response struct {
