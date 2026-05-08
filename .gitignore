@@ -21,6 +21,7 @@ Thumbs.db
 *.key
 secrets/
 *.local
+token
 
 # ───────────────────────── Logs / temp ─────────────────────────
 *.log
