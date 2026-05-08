@@ -2,7 +2,6 @@
 
 **Autor:** Papură Corneliu-Octavian
 **Tip proiect:** personal / portfolio (GitHub, CV)
-**Data:** 2026-05-08
 
 ---
 

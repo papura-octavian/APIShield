@@ -112,11 +112,11 @@ proxy · detection-engine · postgres · redis · dashboard.
 
 This repo currently holds:
 
-- `docs/superpowers/specs/2026-05-08-api-security-proxy-design.md` — full design
-  document (architecture, ML algorithms per attack, evaluation methodology,
-  ordered execution phases, risks).
-- `CLAUDE.md` — project context for AI-assisted development with
-  [Claude Code](https://claude.com/claude-code).
+- `docs/superpowers/specs/api-security-proxy-design_eng.md` — full design
+  document in English (architecture, ML algorithms per attack, evaluation
+  methodology, ordered execution phases, risks).
+- `docs/superpowers/specs/api-security-proxy-design_ro.md` — same document in
+  Romanian.
 
 Implementation is split into 6 ordered phases (see the design doc):
 
