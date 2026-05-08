@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -19,9 +19,21 @@ func clearScreen() {
 	cmd.Run()
 }
 
+type Response struct {
+	Method  string `json:"method"`
+	Path    string `json:"path"`
+	Message string `json:"message"`
+}
+
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("%s %s", r.Method, r.URL.Path)
-	fmt.Fprintln(w, "hello")
+
+	w.Header().Set("Content-Type", "application/json")
+
+	resp := Response{Method: r.Method, Path: r.URL.Path, Message: "hello from backend!"}
+
+	json.NewEncoder(w).Encode(resp)
+
 }
 
 func main() {
